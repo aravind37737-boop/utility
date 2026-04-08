@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Toolbox — 8 Everyday Utilities</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --surface: #16161a;
+    --surface2: #1e1e24;
+    --border: rgba(255,255,255,0.07);
+    --accent: #c8f04e;
+    --accent2: #6c63ff;
+    --accent3: #ff6b6b;
+    --text: #f0f0f2;
+    --muted: #7a7a8a;
+    --radius: 16px;
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NOISE TEXTURE */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 9999; opacity: 0.4;
+  }
+
+  /* HEADER */
+  header {
+    padding: 2rem 3rem;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(13,13,15,0.85);
+    backdrop-filter: blur(20px);
+  }
+  .logo {
+    font-family: var(--font-display);
+    font-size: 1.3rem; font-weight: 800;
+    letter-spacing: -0.03em;
+  }
+  .logo span { color: var(--accent); }
+  .header-tag {
+    font-size: 0.75rem; color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 4px 12px; border-radius: 99px;
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+
+  /* HERO */
+  .hero {
+    padding: 5rem 3rem 3rem;
+    max-width: 900px;
+  }
+  .hero-label {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 1.5rem;
+    font-weight: 600;
+  }
+  .hero-label::before {
+    content: ''; display: block;
+    width: 20px; height: 2px; background: var(--accent);
+  }
+  .hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.8rem, 6vw, 5rem);
+    font-weight: 800; line-height: 1.0;
+    letter-spacing: -0.04em;
+    margin-bottom: 1.2rem;
+  }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero p {
+    font-size: 1.1rem; color: var(--muted);
+    max-width: 500px; line-height: 1.7;
+    font-weight: 300;
+  }
+
+  /* NAV TABS */
+  .nav-tabs {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    padding: 1.5rem 3rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .tab-btn {
+    font-family: var(--font-body);
+    font-size: 0.8rem; font-weight: 500;
+    padding: 8px 16px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 6px;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+  }
+  .tab-btn:hover { border-color: rgba(255,255,255,0.2); color: var(--text); }
+  .tab-btn.active {
+    background: var(--accent); color: #0d0d0f;
+    border-color: var(--accent); font-weight: 700;
+  }
+  .tab-btn .icon { font-size: 14px; }
+
+  /* MAIN LAYOUT */
+  .main { padding: 3rem; }
+
+  /* TOOL PANELS */
+  .tool-panel { display: none; animation: fadeIn 0.3s ease; }
+  .tool-panel.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .panel-header {
+    margin-bottom: 2.5rem;
+  }
+  .panel-header h2 {
+    font-family: var(--font-display);
+    font-size: 2rem; font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.4rem;
+  }
+  .panel-header p { color: var(--muted); font-size: 0.95rem; font-weight: 300; }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+  }
+  .card-row {
+    display: grid; gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+  .result-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    min-height: 60px;
+    margin-top: 1.5rem;
+    color: var(--muted);
+  }
+  .result-box.active { color: var(--text); }
+  .result-big {
+    font-family: var(--font-display);
+    font-size: 2.5rem; font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.03em;
+  }
+  .result-sub { font-size: 0.85rem; color: var(--muted); margin-top: 4px; }
+
+  /* FORM CONTROLS */
+  label.field-label {
+    display: block;
+    font-size: 0.75rem; font-weight: 600;
+    letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 8px;
+  }
+  input[type="text"], input[type="number"], input[type="date"],
+  select, textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+  }
+  select option { background: var(--surface2); }
+  .field { margin-bottom: 1.2rem; }
+  .fields-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; }
+
+  /* BUTTONS */
+  .btn {
+    font-family: var(--font-body);
+    font-size: 0.9rem; font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: var(--accent); color: #0d0d0f;
+  }
+  .btn-primary:hover { background: #d8ff60; transform: translateY(-1px); }
+  .btn-secondary {
+    background: var(--surface2); color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: rgba(255,255,255,0.2); }
+  .btn:active { transform: scale(0.98); }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 1.2rem; }
+
+  /* RANGE SLIDER */
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%; height: 4px;
+    background: var(--surface2);
+    border-radius: 99px; border: none; padding: 0;
+    outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    background: var(--accent); border-radius: 50%;
+    cursor: pointer;
+  }
+  .slider-row { display: flex; align-items: center; gap: 16px; }
+  .slider-val {
+    font-family: var(--font-display);
+    font-size: 1.1rem; font-weight: 700;
+    color: var(--accent); min-width: 36px; text-align: right;
+  }
+
+  /* CHECKBOXES */
+  .checkbox-row { display: flex; gap: 20px; flex-wrap: wrap; margin: 1rem 0; }
+  .checkbox-row label {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 0.85rem; color: var(--text); cursor: pointer;
+    text-transform: none; letter-spacing: 0;
+    font-weight: 400;
+  }
+  input[type="checkbox"] {
+    width: 18px; height: 18px;
+    accent-color: var(--accent);
+    cursor: pointer; padding: 0;
+  }
+
+  /* COLOR SWATCH */
+  #colorSwatch {
+    height: 80px; border-radius: 12px;
+    background: #3B82F6; margin-top: 1rem;
+    transition: background 0.2s;
+    border: 1px solid var(--border);
+  }
+  .color-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+  /* PASSWORD DISPLAY */
+  .pw-display {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    font-family: 'Courier New', monospace;
+    font-size: 1rem; letter-spacing: 0.06em;
+    color: var(--accent);
+    word-break: break-all;
+    margin-top: 1rem; min-height: 56px;
+    line-height: 1.6;
+  }
+
+  /* TEXTAREA */
+  textarea { resize: vertical; min-height: 140px; }
+
+  /* TIMER DISPLAY */
+  .timer-display {
+    font-family: var(--font-display);
+    font-size: 5rem; font-weight: 800;
+    text-align: center; color: var(--accent);
+    letter-spacing: -0.04em;
+    padding: 1.5rem 0;
+  }
+  .timer-mode-row {
+    display: flex; gap: 8px; margin-bottom: 1.5rem;
+  }
+  .mode-btn {
+    flex: 1; padding: 10px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--muted);
+    font-family: var(--font-body); font-size: 0.85rem; font-weight: 500;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .mode-btn.active { background: var(--accent); color: #0d0d0f; border-color: var(--accent); font-weight: 700; }
+
+  /* STAT CHIPS */
+  .stat-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 1rem; }
+  .chip {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 99px; padding: 6px 14px;
+    font-size: 0.8rem; color: var(--muted);
+  }
+  .chip strong { color: var(--text); }
+
+  /* BMI BAR */
+  .bmi-bar-wrap { margin-top: 1.5rem; }
+  .bmi-bar-track {
+    height: 8px; border-radius: 99px;
+    background: linear-gradient(to right, #6c9bd2 0%, #4ade80 18.5% , #facc15 25%, #f97316 30%, #ef4444 100%);
+    position: relative; margin-bottom: 8px;
+  }
+  .bmi-marker {
+    width: 14px; height: 14px; background: var(--text);
+    border-radius: 50%; position: absolute; top: -3px;
+    transform: translateX(-50%);
+    transition: left 0.4s cubic-bezier(0.4,0,0.2,1);
+    border: 2px solid var(--bg);
+  }
+  .bmi-labels {
+    display: flex; justify-content: space-between;
+    font-size: 0.7rem; color: var(--muted);
+  }
+
+  /* UNIT CONVERTER ARROW */
+  .convert-arrow {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; color: var(--muted); padding-top: 1.6rem;
+  }
+
+  /* TIP CARDS */
+  .tip-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 1.5rem; }
+  .tip-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1rem; text-align: center;
+  }
+  .tip-card .tc-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .tip-card .tc-val { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+
+  /* FOOTER */
+  footer {
+    text-align: center; padding: 3rem;
+    color: var(--muted); font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+    margin-top: 3rem;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    header { padding: 1.25rem 1.5rem; }
+    .hero { padding: 3rem 1.5rem 2rem; }
+    .nav-tabs { padding: 1rem 1.5rem; }
+    .main { padding: 2rem 1.5rem; }
+    .tip-cards { grid-template-columns: 1fr; }
+    .timer-display { font-size: 3.5rem; }
+    .color-inputs { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Tool<span>box</span></div>
+  <div class="header-tag">8 tools · Free · No login</div>
+</header>
+
+<section class="hero">
+  <div class="hero-label">Everyday utilities</div>
+  <h1>Eight tools,<br><em>one place.</em></h1>
+  <p>A clean, fast collection of calculators and tools you actually use. No sign-up, no ads, no clutter.</p>
+</section>
+
+<!-- TABS -->
+<nav class="nav-tabs">
+  <button class="tab-btn active" onclick="switchTab('age',this)"><span class="icon">🎂</span> Age</button>
+  <button class="tab-btn" onclick="switchTab('bmi',this)"><span class="icon">⚖️</span> BMI</button>
+  <button class="tab-btn" onclick="switchTab('unit',this)"><span class="icon">📐</span> Units</button>
+  <button class="tab-btn" onclick="switchTab('password',this)"><span class="icon">🔐</span> Password</button>
+  <button class="tab-btn" onclick="switchTab('word',this)"><span class="icon">📝</span> Words</button>
+  <button class="tab-btn" onclick="switchTab('color',this)"><span class="icon">🎨</span> Color</button>
+  <button class="tab-btn" onclick="switchTab('tip',this)"><span class="icon">🍽️</span> Tip</button>
+  <button class="tab-btn" onclick="switchTab('timer',this)"><span class="icon">⏱️</span> Timer</button>
+</nav>
+
+<main class="main">
+
+  <!-- AGE CALCULATOR -->
+  <div class="tool-panel active" id="panel-age">
+    <div class="panel-header">
+      <h2>🎂 Age Calculator</h2>
+      <p>Find your exact age in years, months, days — and more.</p>
+    </div>
+    <div class="card">
+      <div class="field">
+        <label class="field-label">Your date of birth</label>
+        <input type="date" id="dob" />
+      </div>
+      <div class="field">
+        <label class="field-label">Calculate age as of (optional)</label>
+        <input type="date" id="asof" />
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="calcAge()">Calculate age</button>
+        <button class="btn btn-secondary" onclick="clearAge()">Clear</button>
+      </div>
+      <div class="result-box" id="age-result">Enter your date of birth to get started.</div>
+    </div>
+  </div>
+
+  <!-- BMI CALCULATOR -->
+  <div class="tool-panel" id="panel-bmi">
+    <div class="panel-header">
+      <h2>⚖️ BMI Calculator</h2>
+      <p>Body mass index — a quick health reference.</p>
+    </div>
+    <div class="card">
+      <div class="fields-row">
+        <div class="field">
+          <label class="field-label">Height (cm)</label>
+          <input type="number" id="bmiH" placeholder="e.g. 170" />
+        </div>
+        <div class="field">
+          <label class="field-label">Weight (kg)</label>
+          <input type="number" id="bmiW" placeholder="e.g. 70" />
+        </div>
+        <div class="field">
+          <label class="field-label">Age (optional)</label>
+          <input type="number" id="bmiAge" placeholder="e.g. 25" />
+        </div>
+        <div class="field">
+          <label class="field-label">Gender (optional)</label>
+          <select id="bmiGender">
+            <option value="">Select</option>
+            <option value="M">Male</option>
+            <option value="F">Female</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="calcBMI()">Calculate BMI</button>
+      </div>
+      <div id="bmi-output" style="display:none;">
+        <div style="margin-top:1.5rem; display:flex; align-items:baseline; gap:16px; flex-wrap:wrap;">
+          <div class="result-big" id="bmi-val">—</div>
+          <div>
+            <div style="font-size:1.1rem;font-weight:600;" id="bmi-cat">—</div>
+            <div class="result-sub" id="bmi-range">—</div>
+          </div>
+        </div>
+        <div class="bmi-bar-wrap">
+          <div class="bmi-bar-track">
+            <div class="bmi-marker" id="bmi-marker" style="left:10%"></div>
+          </div>
+          <div class="bmi-labels">
+            <span>Underweight<br>&lt;18.5</span>
+            <span>Normal<br>18.5–25</span>
+            <span>Overweight<br>25–30</span>
+            <span>Obese<br>&gt;30</span>
+          </div>
+        </div>
+        <div class="result-sub" id="bmi-note" style="margin-top:1rem;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- UNIT CONVERTER -->
+  <div class="tool-panel" id="panel-unit">
+    <div class="panel-header">
+      <h2>📐 Unit Converter</h2>
+      <p>Convert length, weight, temperature, speed, and area.</p>
+    </div>
+    <div class="card">
+      <div class="field">
+        <label class="field-label">Category</label>
+        <select id="unitCat" onchange="buildUnitSelects()">
+          <option value="length">Length</option>
+          <option value="weight">Weight</option>
+          <option value="temp">Temperature</option>
+          <option value="speed">Speed</option>
+          <option value="area">Area</option>
+          <option value="volume">Volume</option>
+        </select>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 40px 1fr;gap:8px;align-items:end;">
+        <div>
+          <label class="field-label">From</label>
+          <select id="unitFrom" onchange="doConvert()"></select>
+        </div>
+        <div class="convert-arrow">⇄</div>
+        <div>
+          <label class="field-label">To</label>
+          <select id="unitTo" onchange="doConvert()"></select>
+        </div>
+      </div>
+      <div class="field" style="margin-top:1rem;">
+        <label class="field-label">Value</label>
+        <input type="number" id="unitVal" placeholder="Enter value" oninput="doConvert()" />
+      </div>
+      <div class="result-box active" id="unit-result" style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:700;color:var(--accent);">—</div>
+    </div>
+  </div>
+
+  <!-- PASSWORD GENERATOR -->
+  <div class="tool-panel" id="panel-password">
+    <div class="panel-header">
+      <h2>🔐 Password Generator</h2>
+      <p>Generate strong, random passwords instantly.</p>
+    </div>
+    <div class="card">
+      <div class="field">
+        <label class="field-label">Length — <span id="pwLenLabel">16</span> characters</label>
+        <div class="slider-row">
+          <input type="range" min="4" max="64" value="16" id="pwLen" step="1" oninput="document.getElementById('pwLenLabel').textContent=this.value;genPW()"/>
+          <div class="slider-val" id="pwLenV">16</div>
+        </div>
+      </div>
+      <div class="checkbox-row">
+        <label><input type="checkbox" id="pwUpper" checked onchange="genPW()"> A–Z uppercase</label>
+        <label><input type="checkbox" id="pwLower" checked onchange="genPW()"> a–z lowercase</label>
+        <label><input type="checkbox" id="pwNum" checked onchange="genPW()"> 0–9 numbers</label>
+        <label><input type="checkbox" id="pwSym" onchange="genPW()"> !@#$ symbols</label>
+      </div>
+      <div class="pw-display" id="pwDisplay">Click generate to create a password</div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="genPW()">↻ Generate</button>
+        <button class="btn btn-secondary" onclick="copyPW()" id="pwCopyBtn">Copy password</button>
+      </div>
+      <div id="pw-strength" style="margin-top:1rem; font-size:0.8rem; color:var(--muted);"></div>
+    </div>
+  </div>
+
+  <!-- WORD COUNTER -->
+  <div class="tool-panel" id="panel-word">
+    <div class="panel-header">
+      <h2>📝 Word Counter</h2>
+      <p>Paste any text — get instant word and character counts.</p>
+    </div>
+    <div class="card">
+      <div class="field">
+        <label class="field-label">Your text</label>
+        <textarea id="wordText" placeholder="Paste or type your text here..." oninput="countWords()"></textarea>
+      </div>
+      <div class="stat-chips" id="word-stats">
+        <div class="chip"><strong>0</strong> words</div>
+        <div class="chip"><strong>0</strong> characters</div>
+        <div class="chip"><strong>0</strong> without spaces</div>
+        <div class="chip"><strong>0</strong> sentences</div>
+        <div class="chip"><strong>0</strong> paragraphs</div>
+        <div class="chip"><strong>~0 min</strong> read</div>
+      </div>
+      <div class="btn-row" style="margin-top:1.2rem;">
+        <button class="btn btn-secondary" onclick="document.getElementById('wordText').value='';countWords()">Clear</button>
+        <button class="btn btn-secondary" onclick="copyText()">Copy text</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLOR PICKER -->
+  <div class="tool-panel" id="panel-color">
+    <div class="panel-header">
+      <h2>🎨 Color Picker</h2>
+      <p>Pick a color and convert between HEX, RGB, and HSL.</p>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;margin-bottom:1.5rem;">
+        <input type="color" id="colorWheel" value="#c8f04e" oninput="colorFromWheel()" style="width:72px;height:72px;border:none;background:none;cursor:pointer;padding:0;"/>
+        <div>
+          <div style="font-family:var(--font-display);font-size:1.5rem;font-weight:700;" id="colorHexDisplay">#c8f04e</div>
+          <div style="font-size:0.85rem;color:var(--muted);" id="colorRgbDisplay">rgb(200, 240, 78)</div>
+          <div style="font-size:0.85rem;color:var(--muted);" id="colorHslDisplay">hsl(77, 87%, 62%)</div>
+        </div>
+      </div>
+      <div id="colorSwatch"></div>
+      <div class="color-inputs" style="margin-top:1.5rem;">
+        <div class="field">
+          <label class="field-label">HEX</label>
+          <input type="text" id="hexInput" value="#c8f04e" oninput="colorFromHex()" />
+        </div>
+        <div class="field">
+          <label class="field-label">RGB</label>
+          <input type="text" id="rgbInput" value="200, 240, 78" oninput="colorFromRgb()" />
+        </div>
+        <div class="field">
+          <label class="field-label">HSL</label>
+          <input type="text" id="hslInput" value="77, 87%, 62%" oninput="colorFromHsl()" />
+        </div>
+        <div class="field">
+          <label class="field-label">CSS variable</label>
+          <input type="text" id="cssInput" readonly style="color:var(--muted);cursor:text;" />
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="copyHex()">Copy HEX</button>
+        <button class="btn btn-secondary" onclick="copyRgb()">Copy RGB</button>
+        <button class="btn btn-secondary" onclick="copyHsl()">Copy HSL</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIP CALCULATOR -->
+  <div class="tool-panel" id="panel-tip">
+    <div class="panel-header">
+      <h2>🍽️ Tip Calculator</h2>
+      <p>Split your bill and calculate the right tip.</p>
+    </div>
+    <div class="card">
+      <div class="fields-row">
+        <div class="field">
+          <label class="field-label">Bill amount (₹)</label>
+          <input type="number" id="tipBill" placeholder="0.00" oninput="calcTip()" />
+        </div>
+        <div class="field">
+          <label class="field-label">Tip %</label>
+          <input type="number" id="tipPct" value="10" placeholder="10" oninput="calcTip()" />
+        </div>
+        <div class="field">
+          <label class="field-label">Number of people</label>
+          <input type="number" id="tipPeople" value="1" min="1" placeholder="1" oninput="calcTip()" />
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem;">
+        <span style="font-size:0.75rem;color:var(--muted);align-self:center;">Quick tip:</span>
+        <button class="btn btn-secondary" style="padding:6px 14px;font-size:0.8rem;" onclick="setTip(5)">5%</button>
+        <button class="btn btn-secondary" style="padding:6px 14px;font-size:0.8rem;" onclick="setTip(10)">10%</button>
+        <button class="btn btn-secondary" style="padding:6px 14px;font-size:0.8rem;" onclick="setTip(15)">15%</button>
+        <button class="btn btn-secondary" style="padding:6px 14px;font-size:0.8rem;" onclick="setTip(18)">18%</button>
+        <button class="btn btn-secondary" style="padding:6px 14px;font-size:0.8rem;" onclick="setTip(20)">20%</button>
+      </div>
+      <div class="tip-cards">
+        <div class="tip-card">
+          <div class="tc-label">Tip amount</div>
+          <div class="tc-val" id="tc-tip">—</div>
+        </div>
+        <div class="tip-card">
+          <div class="tc-label">Total bill</div>
+          <div class="tc-val" id="tc-total">—</div>
+        </div>
+        <div class="tip-card">
+          <div class="tc-label">Per person</div>
+          <div class="tc-val" id="tc-person">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIMER -->
+  <div class="tool-panel" id="panel-timer">
+    <div class="panel-header">
+      <h2>⏱️ Timer</h2>
+      <p>Countdown timer and stopwatch in one.</p>
+    </div>
+    <div class="card">
+      <div class="timer-mode-row">
+        <button class="mode-btn active" id="modeCD" onclick="setTimerMode('countdown')">Countdown</button>
+        <button class="mode-btn" id="modeSW" onclick="setTimerMode('stopwatch')">Stopwatch</button>
+      </div>
+      <div id="cd-inputs">
+        <div class="fields-row">
+          <div class="field">
+            <label class="field-label">Hours</label>
+            <input type="number" id="cdH" value="0" min="0" max="23" placeholder="0" />
+          </div>
+          <div class="field">
+            <label class="field-label">Minutes</label>
+            <input type="number" id="cdM" value="5" min="0" max="59" placeholder="5" />
+          </div>
+          <div class="field">
+            <label class="field-label">Seconds</label>
+            <input type="number" id="cdS" value="0" min="0" max="59" placeholder="0" />
+          </div>
+        </div>
+      </div>
+      <div class="timer-display" id="timerDisp">05:00</div>
+      <div class="btn-row" style="justify-content:center;">
+        <button class="btn btn-primary" id="timerPlayBtn" onclick="timerStart()">▶ Start</button>
+        <button class="btn btn-secondary" onclick="timerPause()">⏸ Pause</button>
+        <button class="btn btn-secondary" onclick="timerReset()">↺ Reset</button>
+      </div>
+      <div id="timer-status" style="text-align:center;margin-top:1rem;font-size:0.85rem;color:var(--muted);"></div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  Built with care · Toolbox &copy; 2025 · All tools run locally in your browser
+</footer>
+
+<script>
+// ── TAB SWITCHER ──
+function switchTab(name, btn) {
+  document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── AGE CALCULATOR ──
+function calcAge() {
+  const dobVal = document.getElementById('dob').value;
+  const asofVal = document.getElementById('asof').value;
+  if(!dobVal) { document.getElementById('age-result').innerHTML='<span style="color:var(--muted)">Please enter your date of birth.</span>'; return; }
+  const dob = new Date(dobVal);
+  const now = asofVal ? new Date(asofVal) : new Date();
+  if(dob > now) { document.getElementById('age-result').innerHTML='<span style="color:var(--muted)">Date of birth cannot be in the future.</span>'; return; }
+  let y = now.getFullYear()-dob.getFullYear();
+  let m = now.getMonth()-dob.getMonth();
+  let d = now.getDate()-dob.getDate();
+  if(d<0){const dim=new Date(now.getFullYear(),now.getMonth(),0).getDate(); d+=dim; m--;}
+  if(m<0){m+=12; y--;}
+  const totalDays = Math.floor((now-dob)/(864e5));
+  const totalMonths = y*12+m;
+  const totalHours = totalDays*24;
+  const nextBday = new Date(now.getFullYear(), dob.getMonth(), dob.getDate());
+  if(nextBday <= now) nextBday.setFullYear(nextBday.getFullYear()+1);
+  const daysUntil = Math.ceil((nextBday-now)/864e5);
+  document.getElementById('age-result').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;">
+      <div style="text-align:center;"><div style="font-family:'Syne';font-size:2rem;font-weight:800;color:var(--accent)">${y}</div><div style="font-size:0.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em">Years</div></div>
+      <div style="text-align:center;"><div style="font-family:'Syne';font-size:2rem;font-weight:800;color:var(--accent)">${m}</div><div style="font-size:0.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em">Months</div></div>
+      <div style="text-align:center;"><div style="font-family:'Syne';font-size:2rem;font-weight:800;color:var(--accent)">${d}</div><div style="font-size:0.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em">Days</div></div>
+    </div>
+    <div style="margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem;display:flex;flex-wrap:wrap;gap:10px;font-size:0.85rem;color:var(--muted);">
+      <span>📅 <strong style="color:var(--text)">${totalDays.toLocaleString()}</strong> total days</span>
+      <span>📆 <strong style="color:var(--text)">${totalMonths.toLocaleString()}</strong> total months</span>
+      <span>⏰ <strong style="color:var(--text)">${totalHours.toLocaleString()}</strong> hours lived</span>
+      <span>🎂 Next birthday in <strong style="color:var(--text)">${daysUntil}</strong> days</span>
+    </div>`;
+  document.getElementById('age-result').classList.add('active');
+}
+function clearAge() {
+  document.getElementById('dob').value='';
+  document.getElementById('asof').value='';
+  document.getElementById('age-result').innerHTML='Enter your date of birth to get started.';
+  document.getElementById('age-result').classList.remove('active');
+}
+
+// ── BMI ──
+function calcBMI() {
+  const h = parseFloat(document.getElementById('bmiH').value)/100;
+  const w = parseFloat(document.getElementById('bmiW').value);
+  if(!h||!w||h<=0||w<=0){document.getElementById('bmi-output').style.display='none';return;}
+  const bmi = w/(h*h);
+  const bmiR = bmi.toFixed(1);
+  let cat, color, range;
+  if(bmi<18.5){cat='Underweight';color='#6c9bd2';range='Less than 18.5';}
+  else if(bmi<25){cat='Normal weight';color='#4ade80';range='18.5 – 24.9';}
+  else if(bmi<30){cat='Overweight';color='#facc15';range='25.0 – 29.9';}
+  else{cat='Obese';color='#ef4444';range='30.0 and above';}
+  document.getElementById('bmi-val').textContent=bmiR;
+  document.getElementById('bmi-cat').style.color=color;
+  document.getElementById('bmi-cat').textContent=cat;
+  document.getElementById('bmi-range').textContent='Range: '+range;
+  // marker: map bmi 10-45 → 0-100%
+  const pct = Math.min(95, Math.max(5, ((bmi-10)/35)*100));
+  document.getElementById('bmi-marker').style.left=pct+'%';
+  const ideal_min = (18.5*h*h).toFixed(1), ideal_max = (24.9*h*h).toFixed(1);
+  document.getElementById('bmi-note').textContent = `Ideal weight range for your height: ${ideal_min}kg – ${ideal_max}kg. BMI is a screening tool, not a diagnostic measure.`;
+  document.getElementById('bmi-output').style.display='block';
+}
+
+// ── UNIT CONVERTER ──
+const unitDefs = {
+  length: {
+    m:1, km:1000, cm:0.01, mm:0.001, mi:1609.344, ft:0.3048, inch:0.0254, yard:0.9144,
+    labels:{m:'Meters',km:'Kilometers',cm:'Centimeters',mm:'Millimeters',mi:'Miles',ft:'Feet',inch:'Inches',yard:'Yards'}
+  },
+  weight: {
+    kg:1, g:0.001, lb:0.453592, oz:0.0283495, t:1000, mg:0.000001,
+    labels:{kg:'Kilograms',g:'Grams',lb:'Pounds',oz:'Ounces',t:'Tonnes',mg:'Milligrams'}
+  },
+  temp: { labels:{C:'Celsius',F:'Fahrenheit',K:'Kelvin'} },
+  speed: {
+    'km/h':1,'m/s':3.6,'mph':1.60934,'knot':1.852,'ft/s':1.09728,
+    labels:{'km/h':'Km/h','m/s':'m/s','mph':'mph','knot':'Knots','ft/s':'ft/s'}
+  },
+  area: {
+    'm2':1,'km2':1e6,'cm2':0.0001,'ft2':0.092903,'acre':4046.86,'ha':10000,'mi2':2589988,
+    labels:{'m2':'m²','km2':'km²','cm2':'cm²','ft2':'ft²','acre':'Acres','ha':'Hectares','mi2':'mi²'}
+  },
+  volume: {
+    L:1, mL:0.001, 'gal(US)':3.78541, fl_oz:0.0295735, cup:0.236588, m3:1000, pint:0.473176,
+    labels:{L:'Liters',mL:'Milliliters','gal(US)':'Gallons (US)',fl_oz:'Fl. Oz',cup:'Cups',m3:'m³',pint:'Pints'}
+  }
+};
+function buildUnitSelects() {
+  const cat = document.getElementById('unitCat').value;
+  const d = unitDefs[cat];
+  const keys = Object.keys(d.labels);
+  ['unitFrom','unitTo'].forEach((id,i)=>{
+    const el = document.getElementById(id); el.innerHTML='';
+    keys.forEach((k,j)=>{
+      const o = document.createElement('option'); o.value=k; o.textContent=d.labels[k];
+      if(i===0&&j===0) o.selected=true;
+      if(i===1&&j===1) o.selected=true;
+      el.appendChild(o);
+    });
+  });
+  document.getElementById('unitVal').value='';
+  document.getElementById('unit-result').textContent='—';
+}
+function doConvert() {
+  const cat = document.getElementById('unitCat').value;
+  const v = parseFloat(document.getElementById('unitVal').value);
+  const from = document.getElementById('unitFrom').value;
+  const to = document.getElementById('unitTo').value;
+  if(isNaN(v)){document.getElementById('unit-result').textContent='—';return;}
+  const d = unitDefs[cat];
+  let result;
+  if(cat==='temp'){
+    let c;
+    if(from==='C')c=v; else if(from==='F')c=(v-32)*5/9; else c=v-273.15;
+    if(to==='C')result=c; else if(to==='F')result=c*9/5+32; else result=c+273.15;
+  } else {
+    result = v * d[from] / d[to];
+  }
+  const fmt = Math.abs(result)<0.001||Math.abs(result)>1e7 ? result.toExponential(4) : parseFloat(result.toFixed(6));
+  document.getElementById('unit-result').textContent = `${v} ${d.labels[from]} = ${fmt} ${d.labels[to]}`;
+}
+buildUnitSelects();
+
+// ── PASSWORD ──
+function genPW() {
+  const len = parseInt(document.getElementById('pwLen').value);
+  document.getElementById('pwLenV').textContent = len;
+  document.getElementById('pwLenLabel').textContent = len;
+  let chars = '';
+  if(document.getElementById('pwUpper').checked) chars+='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  if(document.getElementById('pwLower').checked) chars+='abcdefghijklmnopqrstuvwxyz';
+  if(document.getElementById('pwNum').checked) chars+='0123456789';
+  if(document.getElementById('pwSym').checked) chars+='!@#$%^&*()-_=+[]{}|;:,.<>?';
+  if(!chars) chars='abcdefghijklmnopqrstuvwxyz';
+  let pw = '';
+  const arr = new Uint32Array(len);
+  crypto.getRandomValues(arr);
+  for(let i=0;i<len;i++) pw+=chars[arr[i]%chars.length];
+  document.getElementById('pwDisplay').textContent = pw;
+  // strength
+  let score = 0;
+  if(len>=12) score++; if(len>=20) score++;
+  if(document.getElementById('pwUpper').checked) score++;
+  if(document.getElementById('pwLower').checked) score++;
+  if(document.getElementById('pwNum').checked) score++;
+  if(document.getElementById('pwSym').checked) score+=2;
+  const labels = ['','Weak','Fair','Moderate','Strong','Very strong','Excellent'];
+  const colors = ['','#ef4444','#f97316','#facc15','#4ade80','#4ade80','#c8f04e'];
+  const s = Math.min(6,score);
+  document.getElementById('pw-strength').innerHTML = `Strength: <strong style="color:${colors[s]}">${labels[s]||'—'}</strong>`;
+}
+function copyPW() {
+  const pw = document.getElementById('pwDisplay').textContent;
+  navigator.clipboard.writeText(pw).then(()=>{
+    const b = document.getElementById('pwCopyBtn'); b.textContent='Copied!';
+    setTimeout(()=>b.textContent='Copy password',1800);
+  });
+}
+genPW();
+
+// ── WORD COUNTER ──
+function countWords() {
+  const t = document.getElementById('wordText').value;
+  const words = t.trim() ? t.trim().split(/\s+/).filter(w=>w).length : 0;
+  const chars = t.length;
+  const nosp = t.replace(/\s/g,'').length;
+  const sents = t.trim() ? t.split(/[.!?]+\s*/).filter(s=>s.trim()).length : 0;
+  const paras = t.trim() ? t.split(/\n\s*\n/).filter(p=>p.trim()).length : 0;
+  const readMin = Math.max(1, Math.ceil(words/200));
+  const chips = document.getElementById('word-stats');
+  chips.innerHTML = `
+    <div class="chip"><strong>${words.toLocaleString()}</strong> words</div>
+    <div class="chip"><strong>${chars.toLocaleString()}</strong> characters</div>
+    <div class="chip"><strong>${nosp.toLocaleString()}</strong> without spaces</div>
+    <div class="chip"><strong>${sents}</strong> sentences</div>
+    <div class="chip"><strong>${paras||1}</strong> paragraphs</div>
+    <div class="chip"><strong>~${readMin} min</strong> read</div>`;
+}
+function copyText() {
+  navigator.clipboard.writeText(document.getElementById('wordText').value);
+}
+
+// ── COLOR ──
+function updateColorDisplays(h,r,g,b) {
+  document.getElementById('colorHexDisplay').textContent = h;
+  document.getElementById('colorRgbDisplay').textContent = `rgb(${r}, ${g}, ${b})`;
+  const [hh,s,l] = rgbToHslVals(r,g,b);
+  document.getElementById('colorHslDisplay').textContent = `hsl(${hh}, ${s}%, ${l}%)`;
+  document.getElementById('colorSwatch').style.background = h;
+  document.getElementById('hexInput').value = h;
+  document.getElementById('rgbInput').value = `${r}, ${g}, ${b}`;
+  document.getElementById('hslInput').value = `${hh}, ${s}%, ${l}%`;
+  document.getElementById('cssInput').value = `color: ${h};`;
+  document.getElementById('colorWheel').value = h;
+}
+function rgbToHslVals(r,g,b){
+  r/=255;g/=255;b/=255;
+  const max=Math.max(r,g,b),min=Math.min(r,g,b); let h,s,l=(max+min)/2;
+  if(max===min){h=s=0;}else{const d=max-min; s=l>0.5?d/(2-max-min):d/(max+min);
+    switch(max){case r:h=(g-b)/d+(g<b?6:0);break;case g:h=(b-r)/d+2;break;case b:h=(r-g)/d+4;}h=Math.round(h*60);}
+  return[h,Math.round(s*100),Math.round(l*100)];
+}
+function hexToRgbVals(h){
+  h=h.replace('#','');
+  if(h.length===3)h=h.split('').map(c=>c+c).join('');
+  return[parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];
+}
+function colorFromWheel(){
+  const h=document.getElementById('colorWheel').value;
+  const [r,g,b]=hexToRgbVals(h);
+  updateColorDisplays(h,r,g,b);
+}
+function colorFromHex(){
+  let h=document.getElementById('hexInput').value.trim();
+  if(!h.startsWith('#'))h='#'+h;
+  if(!/^#[0-9A-Fa-f]{6}$/.test(h))return;
+  const [r,g,b]=hexToRgbVals(h);
+  updateColorDisplays(h,r,g,b);
+}
+function colorFromRgb(){
+  const parts=document.getElementById('rgbInput').value.split(',').map(s=>parseInt(s.trim()));
+  if(parts.length!==3||parts.some(isNaN))return;
+  const [r,g,b]=parts.map(n=>Math.min(255,Math.max(0,n)));
+  const h='#'+[r,g,b].map(n=>n.toString(16).padStart(2,'0')).join('');
+  updateColorDisplays(h,r,g,b);
+}
+function colorFromHsl(){
+  const parts=document.getElementById('hslInput').value.replace(/%/g,'').split(',').map(s=>parseFloat(s.trim()));
+  if(parts.length!==3||parts.some(isNaN))return;
+  const [h,s,l]=[parts[0],parts[1]/100,parts[2]/100];
+  const c=(1-Math.abs(2*l-1))*s, x=c*(1-Math.abs((h/60)%2-1)), m=l-c/2;
+  let r=0,g=0,b=0;
+  if(h<60){r=c;g=x;}else if(h<120){r=x;g=c;}else if(h<180){g=c;b=x;}
+  else if(h<240){g=x;b=c;}else if(h<300){r=x;b=c;}else{r=c;b=x;}
+  const ri=Math.round((r+m)*255),gi=Math.round((g+m)*255),bi=Math.round((b+m)*255);
+  const hex='#'+[ri,gi,bi].map(n=>n.toString(16).padStart(2,'0')).join('');
+  updateColorDisplays(hex,ri,gi,bi);
+}
+function copyHex(){ navigator.clipboard.writeText(document.getElementById('hexInput').value); }
+function copyRgb(){ navigator.clipboard.writeText('rgb('+document.getElementById('rgbInput').value+')'); }
+function copyHsl(){ navigator.clipboard.writeText('hsl('+document.getElementById('hslInput').value+')'); }
+// init
+colorFromWheel();
+
+// ── TIP ──
+function setTip(v){ document.getElementById('tipPct').value=v; calcTip(); }
+function calcTip(){
+  const bill=parseFloat(document.getElementById('tipBill').value)||0;
+  const pct=parseFloat(document.getElementById('tipPct').value)||0;
+  const ppl=Math.max(1,parseInt(document.getElementById('tipPeople').value)||1);
+  const tip=bill*pct/100, total=bill+tip, per=total/ppl;
+  document.getElementById('tc-tip').textContent=bill?'₹'+tip.toFixed(2):'—';
+  document.getElementById('tc-total').textContent=bill?'₹'+total.toFixed(2):'—';
+  document.getElementById('tc-person').textContent=bill?'₹'+per.toFixed(2):'—';
+}
+
+// ── TIMER ──
+let timerMode='countdown', timerInterval=null, timerRunning=false, swElapsed=0, cdLeft=0;
+function setTimerMode(m){
+  timerMode=m;
+  clearInterval(timerInterval); timerRunning=false;
+  document.getElementById('modeCD').classList.toggle('active',m==='countdown');
+  document.getElementById('modeSW').classList.toggle('active',m==='stopwatch');
+  document.getElementById('cd-inputs').style.display=m==='countdown'?'':'none';
+  timerReset();
+}
+function fmtTime(s){
+  const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), ss=s%60;
+  return h>0?`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(ss).padStart(2,'0')}`:`${String(m).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+}
+function timerStart(){
+  if(timerRunning) return;
+  if(timerMode==='countdown'){
+    const h=parseInt(document.getElementById('cdH').value)||0;
+    const m=parseInt(document.getElementById('cdM').value)||0;
+    const s=parseInt(document.getElementById('cdS').value)||0;
+    cdLeft=h*3600+m*60+s;
+    if(cdLeft<=0){document.getElementById('timer-status').textContent='Set a time above first.';return;}
+  }
+  timerRunning=true;
+  document.getElementById('timer-status').textContent='';
+  timerInterval=setInterval(()=>{
+    if(timerMode==='stopwatch'){
+      swElapsed++;
+      document.getElementById('timerDisp').textContent=fmtTime(swElapsed);
+    } else {
+      cdLeft--;
+      document.getElementById('timerDisp').textContent=fmtTime(cdLeft);
+      if(cdLeft<=0){
+        clearInterval(timerInterval); timerRunning=false;
+        document.getElementById('timerDisp').textContent='Done!';
+        document.getElementById('timer-status').textContent='Time is up!';
+      }
+    }
+  },1000);
+}
+function timerPause(){ clearInterval(timerInterval); timerRunning=false; }
+function timerReset(){
+  clearInterval(timerInterval); timerRunning=false; swElapsed=0;
+  document.getElementById('timer-status').textContent='';
+  if(timerMode==='stopwatch'){
+    document.getElementById('timerDisp').textContent='00:00';
+  } else {
+    const h=parseInt(document.getElementById('cdH').value)||0;
+    const m=parseInt(document.getElementById('cdM').value)||5;
+    const s=parseInt(document.getElementById('cdS').value)||0;
+    cdLeft=h*3600+m*60+s;
+    document.getElementById('timerDisp').textContent=fmtTime(cdLeft);
+  }
+}
+</script>
+</body>
+</html>
